@@ -120,7 +120,7 @@ class LoadingViewController: UIViewController {
             make.width.equalTo(100)
         }
         contentStackView.snp.makeConstraints { make in
-            make.centerY.equalToSuperview().offset(50)
+            make.centerY.equalToSuperview().offset(80)
             make.centerX.equalToSuperview()
         }
         playButton.snp.makeConstraints { make in
