@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import SafariServices
 
 class LoadingViewController: UIViewController {
 
@@ -153,8 +154,14 @@ class LoadingViewController: UIViewController {
        }
 
     @objc func privacyButtonTapped() {
-           print("Button tapped!") // Просто пример действия, которое будет выполнено при нажатии на кнопку
-       }
+        if let url = URL(string: "https://www.google.com/") {
+            let config = SFSafariViewController.Configuration()
+            config.entersReaderIfAvailable = true
+            let vc = SFSafariViewController(url: url, configuration: config)
+            vc.modalPresentationStyle = .formSheet
+            present(vc, animated: true)
+        }
+    }
 
 
 }
