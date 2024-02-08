@@ -43,11 +43,30 @@ class GameScene: SKScene {
         return view
     }()
 
+    lazy var pauseButton: SKSpriteNode = {
+        let view = SKSpriteNode(imageNamed: "pause")
+        view.name = "pause"
+        view.position = CGPoint(x: -self.size.width/2.5, y: self.size.height/2.5)
+        view.size = CGSize(width: self.size.width/10 , height: self.size.width/10)
+        return view
+    }()
+
+    lazy var dimSprite: SKSpriteNode = {
+        let view = SKSpriteNode()
+        view.color = UIColor.black.withAlphaComponent(0.5)
+        view.size = .init(width: self.size.width, height: self.size.height)
+        view.position = CGPoint(x: 0, y: 0)
+        view.zPosition = 100000
+        view.name = "dimSprite"
+        return view
+    }()
+
     // MARK: - Scene didMove
 
     override func didMove(to view: SKView) {
         addChild(container)
         addChild(scoreLabel)
+        addChild(pauseButton)
         setBackground()
         createCardStack()
     }
@@ -73,6 +92,17 @@ class GameScene: SKScene {
         }
     }
 
+    private func containerFillWithHolders() {
+        for i in 0...7 {
+            let holder = SKSpriteNode(texture: SKTexture(imageNamed: "cardHolder"))
+            holder.size = .init(width: self.size.width/10, height: self.size.width/10)
+            holder.name = "holder\(i)"
+            holder.position = CGPoint(x: startPosition , y: 0)
+            startPosition = startPosition + (container.size.width - holder.size.width * 7)/8 + holder.size.width
+            container.addChild(holder)
+        }
+    }
+
     // MARK: - Touch Actions
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -85,32 +115,53 @@ class GameScene: SKScene {
         let location = touch.location(in: self)
         guard location.y > -50 else { return }
 
-        if let card = nodes(at: location).first as? SKSpriteNode, card.name != background.name {
+        guard let sprite = nodes(at: location).first as? SKSpriteNode else { return }
+
+        switch sprite.name {
+        case pauseButton.name:
+
+            addChild(dimSprite)
+
+            let frame = SKSpriteNode(imageNamed: "settings")
+            frame.position = CGPoint(x: 0, y: 0)
+            frame.size = .init(width: 200, height: 150)
+            dimSprite.addChild(frame)
+
+            let settingsTitle = SKSpriteNode(imageNamed: "settingsTitle")
+            settingsTitle.position = CGPoint(x: 0, y: frame.size.height/2 + 40)
+            settingsTitle.size = .init(width: 200, height: 50)
+            dimSprite.addChild(settingsTitle)
+
+        case background.name:
+            break
+
+        case dimSprite.name:
+            sprite.removeAllChildren()
+            sprite.removeFromParent()
+
+        default :
+
             guard cardCount < 7 else { return }
             cardCount += 1
-            card.removeFromParent()
-            addCardToRemovedPosition(removed: card)
-            container.addChild(card)
+            sprite.removeFromParent()
+            addCardToRemovedPosition(removed: sprite)
+            container.addChild(sprite)
             if let oldPosition = removerPositions.first {
-                card.position = oldPosition
-                card.zPosition = 1
+                sprite.position = oldPosition
+                sprite.zPosition = 1
                 removerPositions.removeFirst()
             } else {
-                card.position = CGPoint(x: startPosition , y: 0)
-                card.zPosition = 1
-                startPosition = startPosition + (container.size.width - card.size.width * 7)/8 + card.size.width
+                sprite.position = CGPoint(x: startPosition , y: 0)
+                sprite.zPosition = 1
+                startPosition = startPosition + (container.size.width - sprite.size.width * 7)/8 + sprite.size.width
+            }
+            findAndAddDuplicateNames(from: container.children)
+            // FIXME: - add action
+            if cardCount == 7 {
+                debugPrint("END GAME")
             }
         }
-        findAndAddDuplicateNames(from: container.children)
-
-
-    // FIXME: - add action
-        if cardCount == 7 {
-            debugPrint("END")
-        }
-        debugPrint(container.children.count)
     }
-
 }
 
 extension GameScene {
@@ -148,11 +199,21 @@ extension GameScene {
                 node.run(scaleUpAction) {
                     node.removeFromParent()
                 }
-
             }
             score += 10
             cardCount = cardCount - 3
             scoreLabel.text = "Score \(score)"
+        }
+    }
+}
+
+extension SKNode {
+    func removeNodeAtPosition(_ position: CGPoint) {
+        for node in children {
+            if node.position == position {
+                node.removeFromParent()
+                break
+            }
         }
     }
 }
