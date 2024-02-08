@@ -52,7 +52,6 @@ class LoadingViewController: UIViewController {
         animate()
         DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
             let vc = GameViewController()
-            vc.modalPresentationStyle = .formSheet
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
