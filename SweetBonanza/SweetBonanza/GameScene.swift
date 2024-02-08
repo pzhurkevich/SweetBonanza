@@ -13,7 +13,14 @@ class GameScene: SKScene {
     // MARK: - Variables
 
     let cardsName = ["01", "02", "03", "04", "05", "06", "07", "08"]
+
     var score: Int = 0
+    var cardCount: Int = 0
+
+    var nameCount: [String: Int] = [:]
+    var removerPositions: [CGPoint] = []
+
+    lazy var startPosition: CGFloat = -container.size.width/2 + 30
 
     // MARK: - Sprite variables
 
@@ -36,12 +43,16 @@ class GameScene: SKScene {
         return view
     }()
 
+    // MARK: - Scene didMove
+
     override func didMove(to view: SKView) {
         addChild(container)
         addChild(scoreLabel)
         setBackground()
         createCardStack()
     }
+
+    // MARK: - Sprite setters
 
     private func setBackground() {
             background.zPosition = -1
@@ -59,6 +70,89 @@ class GameScene: SKScene {
                 cardTexture.position = CGPoint(x: i, y: j)
                 addChild(cardTexture)
             }
+        }
+    }
+
+    // MARK: - Touch Actions
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if container.children.isEmpty {
+            removerPositions = []
+            startPosition = -container.size.width/2 + 30
+        }
+
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        guard location.y > -50 else { return }
+
+        if let card = nodes(at: location).first as? SKSpriteNode, card.name != background.name {
+            guard cardCount < 7 else { return }
+            cardCount += 1
+            card.removeFromParent()
+            addCardToRemovedPosition(removed: card)
+            container.addChild(card)
+            if let oldPosition = removerPositions.first {
+                card.position = oldPosition
+                card.zPosition = 1
+                removerPositions.removeFirst()
+            } else {
+                card.position = CGPoint(x: startPosition , y: 0)
+                card.zPosition = 1
+                startPosition = startPosition + (container.size.width - card.size.width * 7)/8 + card.size.width
+            }
+        }
+        findAndAddDuplicateNames(from: container.children)
+
+
+    // FIXME: - add action
+        if cardCount == 7 {
+            debugPrint("END")
+        }
+        debugPrint(container.children.count)
+    }
+
+}
+
+extension GameScene {
+
+    // MARK: - Actions
+
+    private func addCardToRemovedPosition(removed: SKSpriteNode) {
+        guard let name = cardsName.randomElement() else { return }
+        let cardTexture = SKSpriteNode(texture: SKTexture(imageNamed: name))
+        cardTexture.position = removed.position
+        cardTexture.size = removed.size
+        cardTexture.name = name
+        addChild(cardTexture)
+    }
+
+    private func findAndAddDuplicateNames(from array: [SKNode]){
+        var nameCount: [String: Int] = [:]
+        var duplicateNodes: [SKNode] = []
+
+        for node in array {
+            if let name = node.name {
+                nameCount[name, default: 0] += 1
+            }
+        }
+
+        for node in array {
+            if let name = node.name, nameCount[name]! >= 3 {
+                duplicateNodes.append(node)
+            }
+        }
+        if duplicateNodes.count == 3 {
+            duplicateNodes.forEach { node in
+                removerPositions.append(node.position)
+                let scaleUpAction = SKAction.scale(to: 2.0, duration: 0.5)
+                node.run(scaleUpAction) {
+                    node.removeFromParent()
+                }
+
+            }
+            score += 10
+            cardCount = cardCount - 3
+            scoreLabel.text = "Score \(score)"
         }
     }
 }
