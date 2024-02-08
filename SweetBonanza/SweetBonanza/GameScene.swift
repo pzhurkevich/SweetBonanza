@@ -78,12 +78,13 @@ class GameScene: SKScene {
         addChild(pauseButton)
         setBackground()
         createCardStack()
+        containerFillWithHolders()
     }
 
     // MARK: - Sprite setters
 
     private func setBackground() {
-            background.zPosition = -1
+            background.zPosition = -2
             background.size = CGSize(width: self.size.width, height: self.size.height)
             addChild(self.background)
     }
@@ -102,13 +103,15 @@ class GameScene: SKScene {
     }
 
     private func containerFillWithHolders() {
-        for i in 0...7 {
+
+        for i in 0...6 {
             let holder = SKSpriteNode(texture: SKTexture(imageNamed: "cardHolder"))
             holder.size = .init(width: self.size.width/10, height: self.size.width/10)
             holder.name = "holder\(i)"
-            holder.position = CGPoint(x: startPosition , y: 0)
+            holder.zPosition = 1
+            holder.position = CGPoint(x: startPosition, y: -self.size.width/2)
             startPosition = startPosition + (container.size.width - holder.size.width * 7)/8 + holder.size.width
-            container.addChild(holder)
+            background.addChild(holder)
         }
     }
 
