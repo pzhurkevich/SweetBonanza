@@ -38,7 +38,7 @@ class GameScene: SKScene {
 
     lazy var container: SKSpriteNode = {
         let view = SKSpriteNode(imageNamed: "cardContainer")
-        view.position = CGPoint(x: 0, y: -self.size.width/3)
+        view.position = CGPoint(x: 0, y: -self.size.width/2)
         view.size = CGSize(width: self.size.width - 20 , height: self.size.width/7)
         return view
     }()
@@ -112,6 +112,39 @@ class GameScene: SKScene {
         }
     }
 
+    private func looseAction() {
+
+        container.removeAllChildren()
+        score = 0
+        cardCount = 0
+
+        nameCount = [:]
+        removerPositions = []
+        startPosition = -container.size.width/2 + 30
+
+
+        addChild(dimSprite)
+        dimSprite.addChild(bubblesBackground)
+
+        let frame = SKSpriteNode(imageNamed: "settings")
+        frame.position = CGPoint(x: 0, y: 0)
+        frame.zPosition = 1
+        frame.size = .init(width: 200, height: 150)
+        dimSprite.addChild(frame)
+
+
+        let title = SKLabelNode()
+        title.position = CGPoint(x: 0, y: 0)
+        title.fontColor = .black
+        title.fontSize = 30
+        frame.zPosition = 2
+        title.fontName = "Helvetica-Bold"
+        title.text = "YOU LOSE"
+
+        frame.addChild(title)
+
+    }
+
     // MARK: - Touch Actions
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -122,7 +155,7 @@ class GameScene: SKScene {
 
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
-        guard location.y > -50 else { return }
+
 
         guard let sprite = nodes(at: location).first as? SKSpriteNode else { return }
 
@@ -137,6 +170,7 @@ class GameScene: SKScene {
             dismissSettings()
 
         default :
+            guard location.y > -50 else { break }
             tappingOnCardAction(for: sprite)
         }
     }
@@ -164,7 +198,7 @@ extension GameScene {
         findAndAddDuplicateNames(from: container.children)
         // FIXME: - add action
         if cardCount == 7 {
-            debugPrint("END GAME")
+           looseAction()
         }
     }
 
