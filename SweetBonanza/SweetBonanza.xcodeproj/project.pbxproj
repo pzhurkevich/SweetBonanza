@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		E9BE09552B74BE8000EE2D33 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BE09542B74BE8000EE2D33 /* AppDelegate.swift */; };
 		E9BE09572B74BE8000EE2D33 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = E9BE09562B74BE8000EE2D33 /* GameScene.sks */; };
-		E9BE09592B74BE8000EE2D33 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = E9BE09582B74BE8000EE2D33 /* Actions.sks */; };
 		E9BE095B2B74BE8000EE2D33 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BE095A2B74BE8000EE2D33 /* GameScene.swift */; };
 		E9BE095D2B74BE8000EE2D33 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BE095C2B74BE8000EE2D33 /* GameViewController.swift */; };
 		E9BE09622B74BE8200EE2D33 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E9BE09612B74BE8200EE2D33 /* Assets.xcassets */; };
@@ -23,7 +22,6 @@
 		E9BE09512B74BE8000EE2D33 /* SweetBonanza.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SweetBonanza.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9BE09542B74BE8000EE2D33 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E9BE09562B74BE8000EE2D33 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
-		E9BE09582B74BE8000EE2D33 /* Actions.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Actions.sks; sourceTree = "<group>"; };
 		E9BE095A2B74BE8000EE2D33 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		E9BE095C2B74BE8000EE2D33 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		E9BE09612B74BE8200EE2D33 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -66,7 +64,6 @@
 				E9BE09542B74BE8000EE2D33 /* AppDelegate.swift */,
 				E9BE096B2B74BFCF00EE2D33 /* LoadingViewController.swift */,
 				E9BE09562B74BE8000EE2D33 /* GameScene.sks */,
-				E9BE09582B74BE8000EE2D33 /* Actions.sks */,
 				E9BE095A2B74BE8000EE2D33 /* GameScene.swift */,
 				E9BE095C2B74BE8000EE2D33 /* GameViewController.swift */,
 				E9BE09612B74BE8200EE2D33 /* Assets.xcassets */,
@@ -143,7 +140,6 @@
 				E9BE09572B74BE8000EE2D33 /* GameScene.sks in Resources */,
 				E9BE09622B74BE8200EE2D33 /* Assets.xcassets in Resources */,
 				E9BE09652B74BE8200EE2D33 /* LaunchScreen.storyboard in Resources */,
-				E9BE09592B74BE8000EE2D33 /* Actions.sks in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

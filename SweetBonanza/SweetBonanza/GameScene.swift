@@ -61,6 +61,15 @@ class GameScene: SKScene {
         return view
     }()
 
+    lazy var bubblesBackground: SKSpriteNode = {
+        let bubblesBackground = SKSpriteNode(imageNamed: "bubbles")
+        bubblesBackground.position = CGPoint(x: 0, y: 0)
+        bubblesBackground.zPosition = 0
+        bubblesBackground.name = "bubles"
+        bubblesBackground.size = .init(width: self.size.width * 2, height: self.size.height)
+        return bubblesBackground
+    }()
+
     // MARK: - Scene didMove
 
     override func didMove(to view: SKView) {
@@ -119,47 +128,16 @@ class GameScene: SKScene {
 
         switch sprite.name {
         case pauseButton.name:
-
-            addChild(dimSprite)
-
-            let frame = SKSpriteNode(imageNamed: "settings")
-            frame.position = CGPoint(x: 0, y: 0)
-            frame.size = .init(width: 200, height: 150)
-            dimSprite.addChild(frame)
-
-            let settingsTitle = SKSpriteNode(imageNamed: "settingsTitle")
-            settingsTitle.position = CGPoint(x: 0, y: frame.size.height/2 + 40)
-            settingsTitle.size = .init(width: 200, height: 50)
-            dimSprite.addChild(settingsTitle)
-
+            openSettings()
+            
         case background.name:
             break
 
-        case dimSprite.name:
-            sprite.removeAllChildren()
-            sprite.removeFromParent()
+        case dimSprite.name, bubblesBackground.name:
+            dismissSettings()
 
         default :
-
-            guard cardCount < 7 else { return }
-            cardCount += 1
-            sprite.removeFromParent()
-            addCardToRemovedPosition(removed: sprite)
-            container.addChild(sprite)
-            if let oldPosition = removerPositions.first {
-                sprite.position = oldPosition
-                sprite.zPosition = 1
-                removerPositions.removeFirst()
-            } else {
-                sprite.position = CGPoint(x: startPosition , y: 0)
-                sprite.zPosition = 1
-                startPosition = startPosition + (container.size.width - sprite.size.width * 7)/8 + sprite.size.width
-            }
-            findAndAddDuplicateNames(from: container.children)
-            // FIXME: - add action
-            if cardCount == 7 {
-                debugPrint("END GAME")
-            }
+            tappingOnCardAction(for: sprite)
         }
     }
 }
@@ -168,6 +146,34 @@ extension GameScene {
 
     // MARK: - Actions
 
+    private func tappingOnCardAction(for sprite: SKSpriteNode) {
+        guard cardCount < 7 else { return }
+        cardCount += 1
+        sprite.removeFromParent()
+        addCardToRemovedPosition(removed: sprite)
+        container.addChild(sprite)
+        if let oldPosition = removerPositions.first {
+            sprite.position = oldPosition
+            sprite.zPosition = 1
+            removerPositions.removeFirst()
+        } else {
+            sprite.position = CGPoint(x: startPosition , y: 0)
+            sprite.zPosition = 1
+            startPosition = startPosition + (container.size.width - sprite.size.width * 7)/8 + sprite.size.width
+        }
+        findAndAddDuplicateNames(from: container.children)
+        // FIXME: - add action
+        if cardCount == 7 {
+            debugPrint("END GAME")
+        }
+    }
+
+    private func dismissSettings() {
+        dimSprite.removeAllChildren()
+        bubblesBackground.removeFromParent()
+        dimSprite.removeFromParent()
+    }
+
     private func addCardToRemovedPosition(removed: SKSpriteNode) {
         guard let name = cardsName.randomElement() else { return }
         let cardTexture = SKSpriteNode(texture: SKTexture(imageNamed: name))
@@ -175,6 +181,23 @@ extension GameScene {
         cardTexture.size = removed.size
         cardTexture.name = name
         addChild(cardTexture)
+    }
+
+    private func openSettings() {
+        addChild(dimSprite)
+        dimSprite.addChild(bubblesBackground)
+
+        let frame = SKSpriteNode(imageNamed: "settings")
+        frame.position = CGPoint(x: 0, y: 0)
+        frame.zPosition = 1
+        frame.size = .init(width: 200, height: 150)
+        dimSprite.addChild(frame)
+
+        let settingsTitle = SKSpriteNode(imageNamed: "settingsTitle")
+        settingsTitle.position = CGPoint(x: 0, y: frame.size.height/2 + 40)
+        settingsTitle.zPosition = 1
+        settingsTitle.size = .init(width: 200, height: 50)
+        dimSprite.addChild(settingsTitle)
     }
 
     private func findAndAddDuplicateNames(from array: [SKNode]){
