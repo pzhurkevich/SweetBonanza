@@ -137,7 +137,7 @@ class GameScene: SKScene {
         title.position = CGPoint(x: 0, y: 0)
         title.fontColor = .black
         title.fontSize = 30
-        frame.zPosition = 2
+        title.zPosition = 2
         title.fontName = "Helvetica-Bold"
         title.text = "YOU LOSE"
 
