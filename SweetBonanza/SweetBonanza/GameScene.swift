@@ -21,9 +21,17 @@ class GameScene: SKScene {
     var removerPositions: [CGPoint] = []
 
     lazy var startPosition: CGFloat = -container.size.width/2 + 30
+    lazy var cardSize: CGSize = CGSize(width: self.size.width/10, height: self.size.width/10)
+    lazy var sceneWidth: CGFloat = self.size.width
+    lazy var sceneHeight: CGFloat = self.size.height
 
     var vibroIsON: Bool = true
     var musicIsON: Bool = true
+
+    let fadeIn = SKAction.fadeAlpha(to: 0, duration: 0.3)
+    let fadeOut = SKAction.fadeAlpha(to: 1, duration: 0.2)
+
+    let removeAction = SKAction.removeFromParent()
 
     // MARK: - Sprite variables
 
@@ -49,15 +57,15 @@ class GameScene: SKScene {
     lazy var pauseButton: SKSpriteNode = {
         let view = SKSpriteNode(imageNamed: "pause")
         view.name = "pause"
-        view.position = CGPoint(x: -self.size.width/2.5, y: self.size.height/2.5)
-        view.size = CGSize(width: self.size.width/10 , height: self.size.width/10)
+        view.position = CGPoint(x: -sceneWidth/2.5, y: sceneHeight/2.5)
+        view.size = self.cardSize
         return view
     }()
 
     lazy var dimSprite: SKSpriteNode = {
         let view = SKSpriteNode()
         view.color = UIColor.black.withAlphaComponent(0.5)
-        view.size = .init(width: self.size.width, height: self.size.height)
+        view.size = self.frame.size
         view.position = CGPoint(x: 0, y: 0)
         view.zPosition = 100000
         view.name = "dimSprite"
@@ -69,7 +77,7 @@ class GameScene: SKScene {
         bubblesBackground.position = CGPoint(x: 0, y: 0)
         bubblesBackground.zPosition = 0
         bubblesBackground.name = "bubles"
-        bubblesBackground.size = .init(width: self.size.width * 2, height: self.size.height)
+        bubblesBackground.size = .init(width: sceneWidth * 2, height: sceneHeight)
         return bubblesBackground
     }()
 
@@ -97,7 +105,7 @@ class GameScene: SKScene {
             for j in stride(from: 0, to: self.size.width/2, by: self.size.width/7) {
                 guard let name = cardsName.randomElement() else { return }
                 let cardTexture = SKSpriteNode(texture: SKTexture(imageNamed: name))
-                cardTexture.size = .init(width: self.size.width/10, height: self.size.width/10)
+                cardTexture.size = cardSize
                 cardTexture.name = name
                 cardTexture.position = CGPoint(x: i, y: j)
                 addChild(cardTexture)
@@ -163,23 +171,41 @@ extension GameScene {
     private func tappingOnCardAction(for sprite: SKSpriteNode) {
         guard cardCount < 7 else { return }
         cardCount += 1
-        sprite.removeFromParent()
-        addCardToRemovedPosition(removed: sprite)
-        container.addChild(sprite)
-        if let oldPosition = removerPositions.first {
-            sprite.position = oldPosition
-            sprite.zPosition = 1
-            removerPositions.removeFirst()
-        } else {
-            sprite.position = CGPoint(x: startPosition , y: 0)
-            sprite.zPosition = 1
-            startPosition = startPosition + (container.size.width - sprite.size.width * 7)/8 + sprite.size.width
+
+        let generateCardInGrid = SKAction.run {
+            self.addCardToRemovedPosition(removed: sprite)
         }
-        findAndAddDuplicateNames(from: container.children)
-        // FIXME: - add action
-        if cardCount == 7 {
-            looseAction()
+
+        let cardPositionInContainer = SKAction.run {
+
+            if let oldPosition = self.removerPositions.first {
+                sprite.position = oldPosition
+                sprite.zPosition = 1
+                self.removerPositions.removeFirst()
+            } else {
+                sprite.position = CGPoint(x: self.startPosition , y: 0)
+                sprite.zPosition = 1
+                self.startPosition = self.startPosition + (self.container.size.width - self.sceneWidth/10 * 7)/8 + self.sceneWidth/10
+            }
         }
+
+        let addingCardToContainer = SKAction.run {
+            sprite.run(self.fadeOut)
+            self.container.addChild(sprite)
+        }
+
+
+
+        let removeDuplicatesIfNeeded = SKAction.run {
+            self.findAndAddDuplicateNames(from: self.container.children)
+            if self.cardCount == 7 {
+                self.looseAction()
+            }
+        }
+
+        let sequenceAction = SKAction.sequence([fadeIn, removeAction, generateCardInGrid, cardPositionInContainer, addingCardToContainer, removeDuplicatesIfNeeded])
+        sprite.run(sequenceAction)
+
     }
 
     private func dismissSettings() {
@@ -192,7 +218,7 @@ extension GameScene {
         guard let name = cardsName.randomElement() else { return }
         let cardTexture = SKSpriteNode(texture: SKTexture(imageNamed: name))
         cardTexture.position = removed.position
-        cardTexture.size = removed.size
+        cardTexture.size = cardSize
         cardTexture.name = name
         addChild(cardTexture)
     }
