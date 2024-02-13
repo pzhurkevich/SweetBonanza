@@ -14,10 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         window = UIWindow()
-        let navigationController = UINavigationController()
-        window?.rootViewController = navigationController
-        let loadingVC = LoadingViewController()
-        navigationController.viewControllers.append(loadingVC)
+        window?.rootViewController = LoadingViewController()
         window?.makeKeyAndVisible()
         return true
     }

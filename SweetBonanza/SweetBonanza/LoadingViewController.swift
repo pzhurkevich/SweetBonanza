@@ -9,9 +9,21 @@ import UIKit
 import SnapKit
 import SafariServices
 
-class LoadingViewController: UIViewController {
+final class LoadingViewController: UIViewController {
 
-    let gameController = GameViewController()
+    private let gameController = GameViewController()
+
+    private let buttonSize: CGSize = .init(width: 150.0, height: 50.0)
+    private let logoImageStartSize: CGSize = .init(width: 100.0, height: 100.0)
+    private let logoImageEndSize: CGSize = .init(width: 270.0, height: 270.0)
+    private let loadingTitleSize: CGSize = .init(width: 100.0, height: 30.0)
+
+    private let contentStackViewOffset: CGFloat = 80.0
+    private let loadingTitleOffset: CGFloat = 70.0
+    private let logoImageStartOffset: CGFloat = 800.0
+    private let logoImageTopInset: CGFloat = 150.0
+
+    private let privacyURL: String = "https://fakefiller.com/privacy"
 
     // MARK: - GUI variables
 
@@ -50,7 +62,7 @@ class LoadingViewController: UIViewController {
         return stack
     }()
 
-    lazy var playButton: UIButton = {
+    private lazy var playButton: UIButton = {
         let button = UIButton()
         let image = UIImage(named: "playButton")
         button.setBackgroundImage(image, for: .normal)
@@ -60,7 +72,7 @@ class LoadingViewController: UIViewController {
         return button
     }()
 
-    lazy var privacyButton: UIButton = {
+    private lazy var privacyButton: UIButton = {
         let button = UIButton()
         let image = UIImage(named: "privacy")
         button.setBackgroundImage(image, for: .normal)
@@ -87,19 +99,8 @@ class LoadingViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        animate()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-            self.logoImage.isHidden = true
-            self.loadingTitle.isHidden = true
-            self.contentStackView.isHidden = false
-            self.logoImage.snp.remakeConstraints { make in
-                make.centerX.equalToSuperview()
-                make.top.equalToSuperview().inset(150)
-                make.size.equalTo(270)
-            }
-            self.view.layoutIfNeeded()
-            self.logoImage.isHidden = false
-        }
+        animatedLogoAppear()
+        mainMenuAppear()
     }
 
     // MARK: - Constraints
@@ -110,33 +111,39 @@ class LoadingViewController: UIViewController {
         }
         logoImage.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.centerY.equalToSuperview().offset(800)
-            make.size.equalTo(100)
+            make.centerY.equalToSuperview().offset(logoImageStartOffset)
+            make.size.equalTo(logoImageStartSize)
         }
         loadingTitle.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.centerY.equalToSuperview().offset(70)
-            make.height.equalTo(30)
-            make.width.equalTo(100)
+            make.centerY.equalToSuperview().offset(loadingTitleOffset)
+            make.size.equalTo(loadingTitleSize)
         }
         contentStackView.snp.makeConstraints { make in
-            make.centerY.equalToSuperview().offset(80)
+            make.centerY.equalToSuperview().offset(contentStackViewOffset)
             make.centerX.equalToSuperview()
         }
         playButton.snp.makeConstraints { make in
-            make.height.equalTo(50)
-            make.width.equalTo(150)
+            make.size.equalTo(buttonSize)
         }
         privacyButton.snp.makeConstraints { make in
-            make.height.equalTo(50)
-            make.width.equalTo(150)
+            make.size.equalTo(buttonSize)
         }
 
     }
 
+    private func afterLoadingConstraints() {
+        self.logoImage.snp.remakeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().inset(self.logoImageTopInset)
+            make.size.equalTo(self.logoImageEndSize)
+        }
+        self.view.layoutIfNeeded()
+    }
+
     // MARK: - Actions
 
-    private func animate() {
+    private func animatedLogoAppear() {
 
         UIView.animate(withDuration: 3) {
             self.logoImage.snp.updateConstraints { make in
@@ -149,12 +156,37 @@ class LoadingViewController: UIViewController {
         })
     }
 
+    private func mainMenuAppear() {
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            self.contentSettings([self.logoImage, self.loadingTitle], isHidden: true, alpha: 0)
+            self.afterLoadingConstraints()
+
+            UIView.animate(withDuration: 0.3, delay: 0.2, options: .curveEaseIn, animations: {
+                self.contentSettings([self.contentStackView, self.logoImage], isHidden: false, alpha: 1)
+            })
+        }
+    }
+
+    private func contentSettings(_ views: [UIView], isHidden: Bool, alpha: CGFloat) {
+        views.forEach({ $0.isHidden = isHidden })
+        contentStackView.alpha = alpha
+        logoImage.alpha = alpha
+    }
+}
+
+extension LoadingViewController {
+
+    // MARK: - Button Actions
+
     @objc func playButtonTapped() {
-        self.navigationController?.pushViewController(gameController, animated: true)
-       }
+        gameController.modalTransitionStyle = .flipHorizontal
+        gameController.modalPresentationStyle = .fullScreen
+        present(gameController, animated: true)
+    }
 
     @objc func privacyButtonTapped() {
-        if let url = URL(string: "https://www.google.com/") {
+        if let url = URL(string: privacyURL) {
             let config = SFSafariViewController.Configuration()
             config.entersReaderIfAvailable = true
             let vc = SFSafariViewController(url: url, configuration: config)
@@ -162,6 +194,4 @@ class LoadingViewController: UIViewController {
             present(vc, animated: true)
         }
     }
-
-
 }
